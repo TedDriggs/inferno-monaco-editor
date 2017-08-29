@@ -26,8 +26,6 @@ module.exports = Merge(CommonConfig, {
                 from: 'node_modules/monaco-editor/dev/vs',
                 to: 'vs',
             }
-        ], {
-            debug: 'debug'
-        }),
+        ]),
     ]),
 });
