@@ -1,0 +1,7 @@
+# Generic
+.DS_Store
+._.DS_Store
+
+# Project-specific
+.vscode
+node_modules
