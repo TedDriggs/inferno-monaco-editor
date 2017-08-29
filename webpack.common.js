@@ -10,20 +10,24 @@ module.exports = {
 
     devtool: 'cheap-module-source-map',
 
+    devServer: {
+        contentBase: './'
+    },
+
     plugins: [
         new webpack.DefinePlugin({
             'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV) },
         }),
         new CopyWebpackPlugin([
             {
-                from: 'node_modules/monaco-editor/min/vs',
+                from: 'node_modules/monaco-editor/dev/vs',
                 to: 'vs',
             }
         ]),
     ],
 
     resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.json'],
+        extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
         modules: [
             path.resolve(__dirname),
             'node_modules',
@@ -69,7 +73,7 @@ module.exports = {
                 },
             },
             {
-                test: /\.tsx?$/,
+                test: /\.[tj]sx?$/,
                 exclude: /node_modules/,
                 use: [
                     {

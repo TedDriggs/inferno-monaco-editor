@@ -1,17 +1,22 @@
 import createElement from 'inferno-create-element';
 import InfernoComponent from 'inferno-component';
-import monaco, {
-    IEditor,
-    IModelContentChangedEvent,
-} from 'monaco-editor/dev/vs/editor/editor.main';
+
+// XXX currently cannot statically reference monaco types
+type IEditor = any;
+type IModelContentChangedEvent = any;
+declare const monaco;
 
 interface EditorSettings {
     width: string;
     height: string;
     value: string;
-    onMonacoAvailable: { (ns: monaco): void };
+    theme: string;
+    options: {};
+    language: string;
+    requireConfig: any;
+    onMonacoAvailable: { (ns: any): void };
     onDidMount: { (editor: IEditor): void };
-    onDidChangeModelContent: {
+    onChange: {
         (value: string, evt: IModelContentChangedEvent): void;
     };
 }
@@ -20,18 +25,27 @@ export interface EditorProps {
     width?: string;
     height?: string;
     value?: string;
-    onMonacoAvailable?: { (ns: monaco): void };
+    theme?: string;
+    options?: {};
+    language?: string;
+    requireConfig?: any;
+    onMonacoAvailable?: { (ns: any): void };
     onDidMount?: { (editor: IEditor): void };
-    onDidChangeModelContent?: {
+    onChange?: {
         (value: string, evt: IModelContentChangedEvent): void;
     };
 }
 
 export default class MonacoEditor extends InfernoComponent<EditorProps, any> {
+    private element: HTMLElement;
     private editor: IEditor | null;
 
     constructor(props: EditorProps) {
-        super(MonacoEditor.withDefaults(props));
+        super(props);
+    }
+
+    componentDidMount() {
+        this.afterViewInit();
     }
 
     componentWillUnmount() {
@@ -39,15 +53,13 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, any> {
     }
 
     render() {
-        const { width, height } = this.props;
+        const { width, height } = this.settings;
         return (
             <div
-                ref="container"
+                ref={elem => (this.element = elem)}
                 style={{ width, height }}
                 className="inferno-monaco-container"
-            >
-                {' '}
-            </div>
+            />
         );
     }
 
@@ -59,22 +71,108 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, any> {
         this.editor = null;
     }
 
-    private static withDefaults(props: EditorProps): EditorSettings {
-        return Object.assign(
-            {
-                width: '100%',
-                height: '500',
-                value: '',
-                language: 'javascript',
-                theme: 'vs',
-                options: {},
-                onMonacoAvailable: noop,
-                onDidChangeModelContent: noop,
-                onDidMount: noop,
-            },
-            props,
+    private afterViewInit() {
+        const { requireConfig } = this.props;
+        const loaderUrl = requireConfig.url || 'vs/loader.js';
+        const w = window as any;
+        const onGotAmdLoader = () => {
+            if (w.__REACT_MONACO_EDITOR_LOADER_ISPENDING__) {
+                // Do not use webpack
+                if (requireConfig.paths && requireConfig.paths.vs) {
+                    w.require.config(requireConfig);
+                }
+            }
+
+            // Load monaco
+            w.require(['vs/editor/editor.main'], () => {
+                this.initMonaco();
+            });
+
+            // Call the delayed callbacks when AMD loader has been loaded
+            if (w.__REACT_MONACO_EDITOR_LOADER_ISPENDING__) {
+                w.__REACT_MONACO_EDITOR_LOADER_ISPENDING__ = false;
+                let loaderCallbacks =
+                    w.__REACT_MONACO_EDITOR_LOADER_CALLBACKS__;
+                if (loaderCallbacks && loaderCallbacks.length) {
+                    let currentCallback = loaderCallbacks.shift();
+                    while (currentCallback) {
+                        currentCallback.fn.call(currentCallback.context);
+                        currentCallback = loaderCallbacks.shift();
+                    }
+                }
+            }
+        };
+
+        // Load AMD loader if necessary
+        if (w.__REACT_MONACO_EDITOR_LOADER_ISPENDING__) {
+            // We need to avoid loading multiple loader.js when there are multiple editors loading concurrently
+            //  delay to call callbacks except the first one
+            w.__REACT_MONACO_EDITOR_LOADER_CALLBACKS__ =
+                w.__REACT_MONACO_EDITOR_LOADER_CALLBACKS__ || [];
+            w.__REACT_MONACO_EDITOR_LOADER_CALLBACKS__.push({
+                context: this,
+                fn: onGotAmdLoader,
+            });
+        } else {
+            if (typeof w.require === 'undefined') {
+                var loaderScript = document.createElement('script');
+                loaderScript.type = 'text/javascript';
+                loaderScript.src = loaderUrl;
+                loaderScript.addEventListener('load', onGotAmdLoader);
+                document.body.appendChild(loaderScript);
+                w.__REACT_MONACO_EDITOR_LOADER_ISPENDING__ = true;
+            } else {
+                onGotAmdLoader();
+            }
+        }
+    }
+
+    private initMonaco() {
+        const {
+            value,
+            language,
+            theme,
+            options,
+            onMonacoAvailable,
+        } = this.settings;
+        if (typeof monaco !== 'undefined') {
+            onMonacoAvailable(monaco);
+            this.editor = monaco.editor.create(this.element, {
+                value,
+                language,
+                theme,
+                ...options,
+            });
+
+            // After monaco editor has been initialized
+            this.onDidMount();
+        }
+    }
+
+    private get settings(): EditorSettings {
+        return this.props as EditorSettings;
+    }
+
+    private onDidMount() {
+        const { onDidMount, onChange } = this.settings;
+        onDidMount(this.editor);
+        this.editor.onDidChangeModelContent(evt =>
+            onChange(this.editor.getValue(), evt),
         );
     }
+
+    static defaultProps = {
+        width: '100%',
+        height: '500',
+        value: '',
+        language: 'javascript',
+        theme: 'vs',
+        options: {},
+        onMonacoAvailable: noop,
+        onChange: noop,
+        onDidMount: noop,
+        requireConfig: {},
+    };
 }
 
 function noop(_: any): void {}
