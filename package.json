@@ -9,7 +9,7 @@
     "scripts": {
         "build": "webpack --env=lib --profile --progress",
         "clean": "rm -rf dist/* && rm -rf .awcache/*",
-        "watch": "webpack-dev-server --env=demo --profile --progress --colors --host 0.0.0.0",
+        "watch": "webpack-dev-server --env=examples --profile --progress --colors --host 0.0.0.0",
         "precommit": "lint-staged",
         "prettier": "prettier --parser typescript --single-quote --tab-width 4 --trailing-comma all --write '**/src/**/*.+(ts|tsx)'"
     },
