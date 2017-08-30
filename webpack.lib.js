@@ -10,7 +10,7 @@ module.exports = Merge(CommonConfig, {
         path: path.resolve(__dirname, 'lib'),
         library: 'inferno-monaco-editor',
         libraryTarget: 'commonjs2',
-        filename: '[name].js'
+        filename: 'index.js'
     },
     // plugins: [
     //     new CopyWebpackPlugin([
