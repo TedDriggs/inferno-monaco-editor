@@ -1,15 +1,13 @@
-// /// <reference types="monaco-editor" />
+/// <reference path="../node_modules/monaco-editor/monaco.d.ts" />
 
 import createElement from 'inferno-create-element';
 import InfernoComponent from 'inferno-component';
 
 // XXX currently cannot reference monaco interfaces if using /// directive,
 // and cannot pass the monaco module as an object in callbacks.
-export type IEditor = any;
-export type IModelContentChangedEvent = any;
-export interface IEditorOptions {}
-export declare type monaco = any;
-export declare const monaco;
+import IModelContentChangedEvent = monaco.editor.IModelChangedEvent;
+import IEditor = monaco.editor.IEditor;
+import IEditorOptions = monaco.editor.IEditorOptions;
 
 export interface EditorSettings {
     width: string;
