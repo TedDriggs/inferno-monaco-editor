@@ -3,7 +3,6 @@
 ._.DS_Store
 
 # Project-specific
+.awcache
 .vscode
 node_modules
-lib
-.awcache
