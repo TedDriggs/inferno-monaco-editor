@@ -1,4 +1,4 @@
-/// <reference path="../../node_modules/monaco-editor/monaco.d.ts" />
+/// <reference types="monaco-editor" />
 import InfernoComponent from 'inferno-component';
 import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
 import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;

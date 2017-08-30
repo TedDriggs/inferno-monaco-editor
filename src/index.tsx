@@ -1,4 +1,4 @@
-/// <reference path="../node_modules/monaco-editor/monaco.d.ts" />
+/// <reference types="monaco-editor" />
 
 import createElement from 'inferno-create-element';
 import InfernoComponent from 'inferno-component';

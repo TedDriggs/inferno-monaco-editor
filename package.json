@@ -1,6 +1,6 @@
 {
     "name": "inferno-monaco-editor",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Inferno wrapper for Monaco",
     "author": "Ted Driggs <tdriggs@outlook.com>",
     "license": "Apache-2.0",
@@ -16,12 +16,12 @@
         "lib"
     ],
     "scripts": {
-        "build": "webpack --env=lib --profile --progress",
+        "build": "webpack --env=lib",
         "clean": "rm -rf lib/* && rm -rf .awcache/*",
         "watch": "webpack-dev-server --env=examples --profile --progress --colors --host 0.0.0.0",
         "precommit": "lint-staged",
         "prettier": "prettier --parser typescript --tab-width 4 --trailing-comma all --write '**/src/**/*.+(ts|tsx)'",
-        "prepublish": "npm run clean; npm run build"
+        "prepublishOnly": "npm run clean; npm run build"
     },
     "bugs": {
         "url": "https://github.com/TedDriggs/inferno-monaco-editor"
