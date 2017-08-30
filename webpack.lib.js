@@ -12,12 +12,12 @@ module.exports = Merge(CommonConfig, {
         libraryTarget: 'commonjs2',
         filename: '[name].js'
     },
-    plugins: [
-        new CopyWebpackPlugin([
-            {
-                from: 'node_modules/monaco-editor/min/vs',
-                to: 'vs',
-            }
-        ]),
-    ]
+    // plugins: [
+    //     new CopyWebpackPlugin([
+    //         {
+    //             from: 'node_modules/monaco-editor/min/vs',
+    //             to: 'vs',
+    //         }
+    //     ]),
+    // ]
 });
