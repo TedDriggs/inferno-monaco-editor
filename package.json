@@ -1,6 +1,6 @@
 {
     "name": "inferno-monaco-editor",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Inferno wrapper for Monaco",
     "author": "Ted Driggs <tdriggs@outlook.com>",
     "license": "Apache-2.0",
@@ -34,7 +34,9 @@
         "node": "8.4.0",
         "npm": "5.3.0"
     },
-    "dependencies": {},
+    "dependencies": {
+        "monaco-editor": "~0.10.0"
+    },
     "devDependencies": {
         "@types/blob-stream": "0.1.29",
         "awesome-typescript-loader": "3.1.2",

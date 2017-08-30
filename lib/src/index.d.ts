@@ -1,9 +1,8 @@
+/// <reference path="../../node_modules/monaco-editor/monaco.d.ts" />
 import InfernoComponent from 'inferno-component';
-export declare type IEditor = any;
-export declare type IModelContentChangedEvent = any;
-export interface IEditorOptions {}
-export declare type monaco = any;
-export declare const monaco: any;
+import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
+import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;
+import IEditorOptions = monaco.editor.IEditorOptions;
 export interface EditorSettings {
     width: string;
     height: string;
@@ -13,10 +12,10 @@ export interface EditorSettings {
     language: string;
     requireConfig: any;
     onMonacoAvailable: {
-        (ns: monaco): void;
+        (ns: typeof monaco): void;
     };
     onDidMount: {
-        (editor: IEditor): void;
+        (editor: IStandaloneCodeEditor): void;
     };
     onChange: {
         (value: string, evt: IModelContentChangedEvent): void;
@@ -31,10 +30,10 @@ export interface EditorProps {
     language?: string;
     requireConfig?: any;
     onMonacoAvailable?: {
-        (ns: monaco): void;
+        (ns: typeof monaco): void;
     };
     onDidMount?: {
-        (editor: IEditor): void;
+        (editor: IStandaloneCodeEditor): void;
     };
     onChange?: {
         (value: string, evt: IModelContentChangedEvent): void;

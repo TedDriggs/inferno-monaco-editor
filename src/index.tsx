@@ -3,10 +3,8 @@
 import createElement from 'inferno-create-element';
 import InfernoComponent from 'inferno-component';
 
-// XXX currently cannot reference monaco interfaces if using /// directive,
-// and cannot pass the monaco module as an object in callbacks.
-import IModelContentChangedEvent = monaco.editor.IModelChangedEvent;
-import IEditor = monaco.editor.IEditor;
+import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
+import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;
 import IEditorOptions = monaco.editor.IEditorOptions;
 
 export interface EditorSettings {
@@ -17,8 +15,8 @@ export interface EditorSettings {
     options: IEditorOptions;
     language: string;
     requireConfig: any;
-    onMonacoAvailable: { (ns: monaco): void };
-    onDidMount: { (editor: IEditor): void };
+    onMonacoAvailable: { (ns: typeof monaco): void };
+    onDidMount: { (editor: IStandaloneCodeEditor): void };
     onChange: {
         (value: string, evt: IModelContentChangedEvent): void;
     };
@@ -32,8 +30,8 @@ export interface EditorProps {
     options?: IEditorOptions;
     language?: string;
     requireConfig?: any;
-    onMonacoAvailable?: { (ns: monaco): void };
-    onDidMount?: { (editor: IEditor): void };
+    onMonacoAvailable?: { (ns: typeof monaco): void };
+    onDidMount?: { (editor: IStandaloneCodeEditor): void };
     onChange?: {
         (value: string, evt: IModelContentChangedEvent): void;
     };
@@ -41,7 +39,7 @@ export interface EditorProps {
 
 export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
     private element: HTMLElement;
-    private editor?: IEditor;
+    private editor?: IStandaloneCodeEditor;
 
     constructor(props: EditorProps) {
         super(props);
@@ -71,7 +69,9 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
      * the size of the element.
      */
     layout() {
-        this.editor.layout();
+        if (this.editor) {
+            this.editor.layout();
+        }
     }
 
     dispose() {
@@ -167,10 +167,9 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
 
     private onDidMount() {
         const { onDidMount, onChange } = this.settings;
-        onDidMount(this.editor);
-        this.editor.onDidChangeModelContent(evt =>
-            onChange(this.editor.getValue(), evt),
-        );
+        const editor = this.editor as IStandaloneCodeEditor;
+        onDidMount(editor);
+        editor.onDidChangeModelContent(evt => onChange(editor.getValue(), evt));
     }
 
     static defaultProps: EditorSettings = {
