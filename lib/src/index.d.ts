@@ -8,6 +8,9 @@ export interface EditorSettings {
     height: string;
     value: string;
     theme: string;
+    style: {
+        [key: string]: any;
+    };
     options: IEditorOptions;
     language: string;
     requireConfig: any;
@@ -26,6 +29,10 @@ export interface EditorProps {
     height?: string;
     value?: string;
     theme?: string;
+    style?: {
+        [key: string]: any;
+    };
+    /** Options passed through to the underlying editor instance. */
     options?: IEditorOptions;
     language?: string;
     requireConfig?: any;
@@ -42,8 +49,11 @@ export interface EditorProps {
 export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
     private element;
     private editor?;
+    /** Merged output of width, height, and any other style properties. */
+    private mergedStyle;
     constructor(props: EditorProps);
     componentDidMount(): void;
+    componentWillReceiveProps(nextProps: EditorProps): void;
     componentWillUnmount(): void;
     render(): any;
     /**
@@ -52,6 +62,7 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
      */
     layout(): void;
     dispose(): void;
+    private mergeStyle(props);
     private afterViewInit();
     private initMonaco();
     /** Gets the component props with defaults applied. */

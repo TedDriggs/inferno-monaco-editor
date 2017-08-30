@@ -12,6 +12,7 @@ export interface EditorSettings {
     height: string;
     value: string;
     theme: string;
+    style: { [key: string]: any };
     options: IEditorOptions;
     language: string;
     requireConfig: any;
@@ -27,6 +28,8 @@ export interface EditorProps {
     height?: string;
     value?: string;
     theme?: string;
+    style?: { [key: string]: any };
+    /** Options passed through to the underlying editor instance. */
     options?: IEditorOptions;
     language?: string;
     requireConfig?: any;
@@ -41,12 +44,20 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
     private element: HTMLElement;
     private editor?: IStandaloneCodeEditor;
 
+    /** Merged output of width, height, and any other style properties. */
+    private mergedStyle: { width: string; height: string; [key: string]: any };
+
     constructor(props: EditorProps) {
         super(props);
+        this.mergeStyle(props as EditorSettings);
     }
 
     componentDidMount() {
         this.afterViewInit();
+    }
+
+    componentWillReceiveProps(nextProps: EditorProps) {
+        this.mergeStyle(nextProps as EditorSettings);
     }
 
     componentWillUnmount() {
@@ -54,11 +65,11 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
     }
 
     render() {
-        const { width, height } = this.settings;
+        const { width, height, style } = this.settings;
         return (
             <div
                 ref={elem => (this.element = elem)}
-                style={{ width, height }}
+                style={{ width, height, ...style }}
                 className="inferno-monaco-container"
             />
         );
@@ -80,6 +91,11 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
         }
 
         this.editor = undefined;
+    }
+
+    private mergeStyle(props: EditorSettings) {
+        const { width, height, style } = props;
+        this.mergedStyle = { width, height, ...style };
     }
 
     private afterViewInit() {
@@ -174,10 +190,11 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
 
     static defaultProps: EditorSettings = {
         width: '100%',
-        height: '500',
+        height: '500px',
         value: '',
         language: 'javascript',
         theme: 'vs',
+        style: {},
         options: {},
         onMonacoAvailable: noop,
         onChange: noop,
