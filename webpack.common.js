@@ -18,12 +18,6 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV) },
         }),
-        new CopyWebpackPlugin([
-            {
-                from: 'node_modules/monaco-editor/dev/vs',
-                to: 'vs',
-            }
-        ]),
     ],
 
     resolve: {
@@ -73,7 +67,7 @@ module.exports = {
                 },
             },
             {
-                test: /\.[tj]sx?$/,
+                test: /\.tsx?$/,
                 exclude: /node_modules/,
                 use: [
                     {

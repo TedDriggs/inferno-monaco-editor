@@ -3,10 +3,31 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <style>
+        h2, #app {
+            box-sizing: border-box;
+        }
+
+        h2 { height: 10%; }
+
+        #app { height: 90%; }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body>
-<h2>Monaco Editor Sample</h2>
-<div id="app" style="width:100%; height: 1000px;"></div>
+    <h2>Monaco Editor Sample</h2>
+    <div id="app"></div>
 </body>
 </html>

@@ -4,7 +4,7 @@
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "declaration": true,
-        "declarationDir": "./dist",
+        "declarationDir": "./lib",
         "jsx": "react",
         "jsxFactory": "createElement",
         "lib": ["dom", "es2015"],

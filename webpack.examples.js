@@ -14,7 +14,7 @@ module.exports = Merge(CommonConfig, {
         disableHostCheck: true,
     },
     output: {
-        path: path.resolve(__dirname, 'examples', 'dist'),
+        path: path.resolve(__dirname, 'examples', 'lib'),
     },
     plugins: CommonConfig.plugins.concat([
         new HtmlWebpackPlugin({

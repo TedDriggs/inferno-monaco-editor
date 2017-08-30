@@ -5,5 +5,5 @@
 # Project-specific
 .vscode
 node_modules
-dist
+lib
 .awcache

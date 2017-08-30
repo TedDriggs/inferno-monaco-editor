@@ -1,20 +1,25 @@
+// /// <reference types="monaco-editor" />
+
 import createElement from 'inferno-create-element';
 import InfernoComponent from 'inferno-component';
 
-// XXX currently cannot statically reference monaco types
-type IEditor = any;
-type IModelContentChangedEvent = any;
-declare const monaco;
+// XXX currently cannot reference monaco interfaces if using /// directive,
+// and cannot pass the monaco module as an object in callbacks.
+export type IEditor = any;
+export type IModelContentChangedEvent = any;
+export interface IEditorOptions {}
+export declare type monaco = any;
+export declare const monaco;
 
-interface EditorSettings {
+export interface EditorSettings {
     width: string;
     height: string;
     value: string;
     theme: string;
-    options: {};
+    options: IEditorOptions;
     language: string;
     requireConfig: any;
-    onMonacoAvailable: { (ns: any): void };
+    onMonacoAvailable: { (ns: monaco): void };
     onDidMount: { (editor: IEditor): void };
     onChange: {
         (value: string, evt: IModelContentChangedEvent): void;
@@ -26,19 +31,19 @@ export interface EditorProps {
     height?: string;
     value?: string;
     theme?: string;
-    options?: {};
+    options?: IEditorOptions;
     language?: string;
     requireConfig?: any;
-    onMonacoAvailable?: { (ns: any): void };
+    onMonacoAvailable?: { (ns: monaco): void };
     onDidMount?: { (editor: IEditor): void };
     onChange?: {
         (value: string, evt: IModelContentChangedEvent): void;
     };
 }
 
-export default class MonacoEditor extends InfernoComponent<EditorProps, any> {
+export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
     private element: HTMLElement;
-    private editor: IEditor | null;
+    private editor?: IEditor;
 
     constructor(props: EditorProps) {
         super(props);
@@ -63,12 +68,20 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, any> {
         );
     }
 
+    /**
+     * Update the size of the editor to fill its container; call after changing
+     * the size of the element.
+     */
+    layout() {
+        this.editor.layout();
+    }
+
     dispose() {
         if (this.editor) {
             this.editor.dispose();
         }
 
-        this.editor = null;
+        this.editor = undefined;
     }
 
     private afterViewInit() {
@@ -149,6 +162,7 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, any> {
         }
     }
 
+    /** Gets the component props with defaults applied. */
     private get settings(): EditorSettings {
         return this.props as EditorSettings;
     }
@@ -161,7 +175,7 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, any> {
         );
     }
 
-    static defaultProps = {
+    static defaultProps: EditorSettings = {
         width: '100%',
         height: '500',
         value: '',
