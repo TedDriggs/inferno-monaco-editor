@@ -1,5 +1,6 @@
 /// <reference types="monaco-editor" />
 
+import { InfernoChildren } from 'inferno';
 import createElement from 'inferno-create-element';
 import InfernoComponent from 'inferno-component';
 
@@ -7,15 +8,20 @@ import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
 import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;
 import IEditorOptions = monaco.editor.IEditorOptions;
 
+/**
+ * Props interface after defaultProps have been applied. Not intended for 
+ * external use.
+ */
 export interface EditorSettings {
     width: string;
     height: string;
     value: string;
     theme: string;
     style: { [key: string]: any };
+    readOnly?: boolean;
     options: IEditorOptions;
     language: string;
-    requireConfig: any;
+    requireConfig: { [prop: string]: any };
     onMonacoAvailable: { (ns: typeof monaco): void };
     onDidMount: { (editor: IStandaloneCodeEditor): void };
     onChange: {
@@ -23,16 +29,25 @@ export interface EditorSettings {
     };
 }
 
+/**
+ * Props for `MonacoEditor` component.
+ */
 export interface EditorProps {
     width?: string;
     height?: string;
     value?: string;
     theme?: string;
     style?: { [key: string]: any };
+    /**
+     * Should the editor be read only.
+     * When unspecified, the editor will look in `options`.
+     */
+    readOnly?: boolean;
     /** Options passed through to the underlying editor instance. */
     options?: IEditorOptions;
     language?: string;
-    requireConfig?: any;
+    // XXX apply real type to this.
+    requireConfig?: { [prop: string]: any };
     onMonacoAvailable?: { (ns: typeof monaco): void };
     onDidMount?: { (editor: IStandaloneCodeEditor): void };
     onChange?: {
@@ -40,16 +55,19 @@ export interface EditorProps {
     };
 }
 
-export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
+export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
     private element: HTMLElement;
     private editor?: IStandaloneCodeEditor;
 
     /** Merged output of width, height, and any other style properties. */
     private mergedStyle: { width: string; height: string; [key: string]: any };
 
+    /** Merged output of loose props and `options` prop. */
+    private mergedOptions: IEditorOptions;
+
     constructor(props: EditorProps) {
         super(props);
-        this.mergeStyle(props as EditorSettings);
+        this.performMerges(props as EditorSettings);
     }
 
     componentDidMount() {
@@ -57,19 +75,26 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
     }
 
     componentWillReceiveProps(nextProps: EditorProps) {
-        this.mergeStyle(nextProps as EditorSettings);
+        this.performMerges(nextProps as EditorSettings);
+        const { props } = this;
+
+        const widthChanged = props.width !== nextProps.width;
+        const heightChanged = props.height !== nextProps.height;
+
+        if (widthChanged || heightChanged) {
+            this.layout();
+        }
     }
 
     componentWillUnmount() {
         this.dispose();
     }
 
-    render() {
-        const { width, height, style } = this.settings;
+    render(): InfernoChildren {
         return (
             <div
                 ref={elem => (this.element = elem)}
-                style={{ width, height, ...style }}
+                style={this.mergedStyle}
                 className="inferno-monaco-container"
             />
         );
@@ -93,13 +118,18 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
         this.editor = undefined;
     }
 
-    private mergeStyle(props: EditorSettings) {
-        const { width, height, style } = props;
+    private performMerges(props: EditorSettings) {
+        const { width, height, style, readOnly, options } = props;
         this.mergedStyle = { width, height, ...style };
+        if (typeof readOnly === 'boolean') {
+            this.mergedOptions = { readOnly, ...options };
+        } else {
+            this.mergedOptions = options;
+        }
     }
 
     private afterViewInit() {
-        const { requireConfig } = this.props;
+        const { requireConfig } = this.settings;
         const loaderUrl = requireConfig.url || 'vs/loader.js';
         const w = window as any;
         const onGotAmdLoader = () => {
@@ -155,20 +185,15 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, never> {
     }
 
     private initMonaco() {
-        const {
-            value,
-            language,
-            theme,
-            options,
-            onMonacoAvailable,
-        } = this.settings;
+        const { value, language, theme, onMonacoAvailable } = this.settings;
+
         if (typeof monaco !== 'undefined') {
             onMonacoAvailable(monaco);
             this.editor = monaco.editor.create(this.element, {
                 value,
                 language,
                 theme,
-                ...options,
+                ...this.mergedOptions,
             });
 
             // After monaco editor has been initialized

@@ -1,6 +1,6 @@
 {
     "name": "inferno-monaco-editor",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "Inferno wrapper for Monaco",
     "author": "Ted Driggs <tdriggs@outlook.com>",
     "license": "Apache-2.0",
