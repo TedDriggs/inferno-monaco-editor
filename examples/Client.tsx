@@ -21,6 +21,7 @@ export default class Client extends InfernoComponent<any, never> {
                 ref={node => this.editor = node}
                 width="100%" 
                 height="100%" 
+                readOnly={false}
                 value="if (Flow.server.ipaddr.isRFC1918) Application('int').commit();"
                 style={{
                     border: '1px solid gray',

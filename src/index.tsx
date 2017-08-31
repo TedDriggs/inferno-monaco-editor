@@ -1,5 +1,6 @@
 /// <reference types="monaco-editor" />
 
+import deepEqual from 'deep-equal';
 import { InfernoChildren } from 'inferno';
 import createElement from 'inferno-create-element';
 import InfernoComponent from 'inferno-component';
@@ -75,7 +76,9 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
     }
 
     componentWillReceiveProps(nextProps: EditorProps) {
-        this.performMerges(nextProps as EditorSettings);
+        const { didOptionsChange } = this.performMerges(
+            nextProps as EditorSettings,
+        );
         const { props } = this;
 
         const widthChanged = props.width !== nextProps.width;
@@ -83,6 +86,10 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
 
         if (widthChanged || heightChanged) {
             this.layout();
+        }
+
+        if (didOptionsChange && this.editor) {
+            this.editor.updateOptions(this.mergedOptions);
         }
     }
 
@@ -118,14 +125,36 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
         this.editor = undefined;
     }
 
-    private performMerges(props: EditorSettings) {
+    private performMerges(
+        props: EditorSettings,
+    ): { didStyleChange: boolean; didOptionsChange: boolean } {
+        let didStyleChange = false;
+        let didOptionsChange = false;
+
         const { width, height, style, readOnly, options } = props;
-        this.mergedStyle = { width, height, ...style };
+        const incomingStyle = { width, height, ...style };
+
+        let incomingOptions: IEditorOptions;
         if (typeof readOnly === 'boolean') {
-            this.mergedOptions = { readOnly, ...options };
+            incomingOptions = { readOnly, ...options };
         } else {
-            this.mergedOptions = options;
+            incomingOptions = options;
         }
+
+        if (!deepEqual(incomingStyle, this.mergedStyle)) {
+            didStyleChange = true;
+            this.mergedStyle = incomingStyle;
+        }
+
+        if (!deepEqual(incomingOptions, this.mergedOptions)) {
+            didOptionsChange = true;
+            this.mergedOptions = incomingOptions;
+        }
+
+        return {
+            didStyleChange,
+            didOptionsChange,
+        };
     }
 
     private afterViewInit() {
