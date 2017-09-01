@@ -73,7 +73,7 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
     private mergedOptions;
     constructor(props: EditorProps);
     componentDidMount(): void;
-    componentWillReceiveProps(nextProps: EditorProps): void;
+    componentWillReceiveProps(nextProps: EditorSettings): void;
     componentWillUnmount(): void;
     render(): InfernoChildren;
     /**

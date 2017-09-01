@@ -57,7 +57,7 @@ export interface EditorProps {
 }
 
 export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
-    private element: HTMLElement;
+    private element: HTMLDivElement;
     private editor?: IStandaloneCodeEditor;
 
     /** Merged output of width, height, and any other style properties. */
@@ -75,11 +75,11 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
         this.afterViewInit();
     }
 
-    componentWillReceiveProps(nextProps: EditorProps) {
+    componentWillReceiveProps(nextProps: EditorSettings) {
         const { didOptionsChange } = this.performMerges(
             nextProps as EditorSettings,
         );
-        const { props } = this;
+        const { props, editor, settings } = this;
 
         const widthChanged = props.width !== nextProps.width;
         const heightChanged = props.height !== nextProps.height;
@@ -88,8 +88,14 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
             this.layout();
         }
 
-        if (didOptionsChange && this.editor) {
-            this.editor.updateOptions(this.mergedOptions);
+        if (editor) {
+            if (didOptionsChange) {
+                editor.updateOptions(this.mergedOptions);
+            }
+
+            if (settings.theme !== nextProps.theme) {
+                monaco.editor.setTheme(nextProps.theme);
+            }
         }
     }
 
@@ -134,12 +140,9 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
         const { width, height, style, readOnly, options } = props;
         const incomingStyle = { width, height, ...style };
 
-        let incomingOptions: IEditorOptions;
-        if (typeof readOnly === 'boolean') {
-            incomingOptions = { readOnly, ...options };
-        } else {
-            incomingOptions = options;
-        }
+        // If readOnly is `undefined`, JS will automatically fall
+        // through to the value of the key in `options`, if it's there.
+        const incomingOptions: IEditorOptions = { readOnly, ...options };
 
         if (!deepEqual(incomingStyle, this.mergedStyle)) {
             didStyleChange = true;
