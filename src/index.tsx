@@ -8,6 +8,7 @@ import InfernoComponent from 'inferno-component';
 import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
 import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;
 import IEditorOptions = monaco.editor.IEditorOptions;
+import IModel = monaco.editor.IModel;
 
 /**
  * Props interface after defaultProps have been applied. Not intended for 
@@ -58,7 +59,7 @@ export interface EditorProps {
 
 export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
     private element: HTMLDivElement;
-    private editor?: IStandaloneCodeEditor;
+    private _editor?: IStandaloneCodeEditor;
 
     /** Merged output of width, height, and any other style properties. */
     private mergedStyle: { width: string; height: string; [key: string]: any };
@@ -79,7 +80,7 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
         const { didOptionsChange } = this.performMerges(
             nextProps as EditorSettings,
         );
-        const { props, editor, settings } = this;
+        const { props, _editor, settings } = this;
 
         const widthChanged = props.width !== nextProps.width;
         const heightChanged = props.height !== nextProps.height;
@@ -88,9 +89,9 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
             this.layout();
         }
 
-        if (editor) {
+        if (_editor) {
             if (didOptionsChange) {
-                editor.updateOptions(this.mergedOptions);
+                _editor.updateOptions(this.mergedOptions);
             }
 
             if (settings.theme !== nextProps.theme) {
@@ -113,22 +114,31 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
         );
     }
 
+    get editor(): IStandaloneCodeEditor | undefined {
+        return this._editor;
+    }
+
+    get model(): IModel | undefined {
+        const { editor } = this;
+        if (editor) return editor.getModel();
+    }
+
     /**
      * Update the size of the editor to fill its container; call after changing
      * the size of the element.
      */
     layout() {
-        if (this.editor) {
-            this.editor.layout();
+        if (this._editor) {
+            this._editor.layout();
         }
     }
 
     dispose() {
-        if (this.editor) {
-            this.editor.dispose();
+        if (this._editor) {
+            this._editor.dispose();
         }
 
-        this.editor = undefined;
+        this._editor = undefined;
     }
 
     private performMerges(
@@ -221,7 +231,7 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
 
         if (typeof monaco !== 'undefined') {
             onMonacoAvailable(monaco);
-            this.editor = monaco.editor.create(this.element, {
+            this._editor = monaco.editor.create(this.element, {
                 value,
                 language,
                 theme,
@@ -240,7 +250,7 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
 
     private onDidMount() {
         const { onDidMount, onChange } = this.settings;
-        const editor = this.editor as IStandaloneCodeEditor;
+        const editor = this._editor as IStandaloneCodeEditor;
         onDidMount(editor);
         editor.onDidChangeModelContent(evt => onChange(editor.getValue(), evt));
     }

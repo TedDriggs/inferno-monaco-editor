@@ -4,6 +4,7 @@ import InfernoComponent from 'inferno-component';
 import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
 import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;
 import IEditorOptions = monaco.editor.IEditorOptions;
+import IModel = monaco.editor.IModel;
 /**
  * Props interface after defaultProps have been applied. Not intended for
  * external use.
@@ -66,7 +67,7 @@ export interface EditorProps {
 }
 export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
     private element;
-    private editor?;
+    private _editor?;
     /** Merged output of width, height, and any other style properties. */
     private mergedStyle;
     /** Merged output of loose props and `options` prop. */
@@ -76,6 +77,8 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
     componentWillReceiveProps(nextProps: EditorSettings): void;
     componentWillUnmount(): void;
     render(): InfernoChildren;
+    readonly editor: IStandaloneCodeEditor | undefined;
+    readonly model: IModel | undefined;
     /**
      * Update the size of the editor to fill its container; call after changing
      * the size of the element.
