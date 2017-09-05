@@ -150,9 +150,10 @@ export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
         const { width, height, style, readOnly, options } = props;
         const incomingStyle = { width, height, ...style };
 
-        // If readOnly is `undefined`, JS will automatically fall
-        // through to the value of the key in `options`, if it's there.
-        const incomingOptions: IEditorOptions = { readOnly, ...options };
+        let incomingOptions: IEditorOptions = options;
+        if (typeof readOnly !== 'undefined') {
+            incomingOptions = { ...options, readOnly };
+        }
 
         if (!deepEqual(incomingStyle, this.mergedStyle)) {
             didStyleChange = true;
