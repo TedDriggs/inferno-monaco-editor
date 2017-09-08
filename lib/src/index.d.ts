@@ -1,6 +1,6 @@
 /// <reference types="monaco-editor" />
 import { InfernoChildren } from 'inferno';
-import InfernoComponent from 'inferno-component';
+import Component from 'inferno-component';
 import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
 import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;
 import IEditorOptions = monaco.editor.IEditorOptions;
@@ -65,7 +65,7 @@ export interface EditorProps {
         (value: string, evt: IModelContentChangedEvent): void;
     };
 }
-export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
+export default class MonacoEditor extends Component<EditorProps, void> {
     private element;
     private _editor?;
     /** Merged output of width, height, and any other style properties. */

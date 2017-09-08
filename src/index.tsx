@@ -3,7 +3,7 @@
 import deepEqual from 'deep-equal';
 import { InfernoChildren } from 'inferno';
 import createElement from 'inferno-create-element';
-import InfernoComponent from 'inferno-component';
+import Component from 'inferno-component';
 
 import IModelContentChangedEvent = monaco.editor.IModelContentChangedEvent;
 import IStandaloneCodeEditor = monaco.editor.IStandaloneCodeEditor;
@@ -57,7 +57,7 @@ export interface EditorProps {
     };
 }
 
-export default class MonacoEditor extends InfernoComponent<EditorProps, void> {
+export default class MonacoEditor extends Component<EditorProps, void> {
     private element: HTMLDivElement;
     private _editor?: IStandaloneCodeEditor;
 

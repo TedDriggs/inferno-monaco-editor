@@ -1,5 +1,8 @@
 # Changelog
 
+# 0.0.10 (2017-09-08)
+* Update to inferno@3.9.0
+
 # 0.0.8
 * Expose getters for `model` and `editor`
 
