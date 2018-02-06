@@ -31,8 +31,8 @@
         "url": "https://github.com/TedDriggs/inferno-monaco-editor"
     },
     "engines": {
-        "node": "8.4.0",
-        "npm": "5.3.0"
+        "node": "^8.4.0",
+        "npm": "^5.3.0"
     },
     "dependencies": {
         "monaco-editor": "~0.10.0"
