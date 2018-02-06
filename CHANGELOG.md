@@ -1,5 +1,8 @@
 # Changelog
 
+# 0.0.11 (2018-02-06)
+* Relax engine version constraint (PR #3 by @LucaT1)
+
 # 0.0.10 (2017-09-08)
 * Update to inferno@3.9.0
 
